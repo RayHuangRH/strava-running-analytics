@@ -6,5 +6,8 @@ node_modules
 venv
 __pycache__
 
+# Supabase
+.temp
+
 # Env
 .env
