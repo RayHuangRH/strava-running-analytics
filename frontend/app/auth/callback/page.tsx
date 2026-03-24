@@ -11,10 +11,20 @@ import {
   Text,
   Link as ChakraLink,
 } from '@chakra-ui/react';
+import SyncLoadingPage from '../../components/SyncLoadingPage';
+import { jwtDecode } from 'jwt-decode';
+
+interface TokenPayload {
+  athlete_id: number;
+  sub?: string;
+}
 
 export default function AuthCallback() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [shouldShowSync, setShouldShowSync] = useState(false);
+  const [isFirstSync, setIsFirstSync] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -54,8 +64,27 @@ export default function AuthCallback() {
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('athleteData', JSON.stringify(data.athlete));
 
-        // Redirect to dashboard
-        router.push('/dashboard');
+        // Decode JWT to get user_id
+        try {
+          const decoded = jwtDecode<TokenPayload>(data.accessToken);
+          const userIdFromToken = decoded.sub || decoded.athlete_id?.toString();
+
+          if (userIdFromToken) {
+            setUserId(userIdFromToken);
+          }
+        } catch (decodeError) {
+          console.error('Failed to decode token:', decodeError);
+        }
+
+        // Check if we need to show sync loading page
+        if (data.should_sync && data.is_first_sync) {
+          setShouldShowSync(true);
+          setIsFirstSync(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          router.push('/dashboard');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error occurred');
         setLoading(false);
@@ -64,6 +93,19 @@ export default function AuthCallback() {
 
     handleCallback();
   }, [searchParams, router]);
+
+  // Show sync loading page if needed
+  if (shouldShowSync && userId) {
+    return (
+      <SyncLoadingPage
+        userId={userId}
+        isFirstSync={isFirstSync}
+        onSyncComplete={() => {
+          // Sync complete, will redirect from SyncLoadingPage
+        }}
+      />
+    );
+  }
 
   if (loading) {
     return (

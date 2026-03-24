@@ -10,7 +10,7 @@ export default function StravaLoginButton({
   redirectUri = 'http://localhost:3000/auth/callback',
 }: StravaLoginButtonProps) {
   const clientId = process.env.NEXT_PUBLIC_STRAVA_CLIENT_ID;
-  const scope = 'read';
+  const scope = 'activity:read_all,profile:read_all';
 
   // Construct Strava OAuth authorization URL
   const stravaAuthUrl = new URL('https://www.strava.com/oauth/authorize');

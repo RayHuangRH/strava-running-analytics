@@ -13,26 +13,6 @@ STRAVA_REDIRECT_URI = os.getenv(
 )
 
 
-def get_strava_authorize_url() -> str:
-    """
-    Generates the Strava OAuth authorization URL.
-
-    Returns:
-        str: The authorization URL to redirect the user to
-    """
-    scope = "activity:read_all,athlete:read_all"
-
-    strava_auth_url = (
-        f"https://www.strava.com/oauth/authorize?"
-        f"client_id={STRAVA_CLIENT_ID}&"
-        f"redirect_uri={STRAVA_REDIRECT_URI}&"
-        f"response_type=code&"
-        f"scope={scope}"
-    )
-
-    return strava_auth_url
-
-
 async def exchange_code_for_token(code: str) -> StravaTokenResponse:
     """
     Exchanges an authorization code for a Strava access token.

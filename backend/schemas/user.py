@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 import uuid
-from supabase_auth import datetime
+from supabase_auth import Optional, datetime
 
 
 class User(BaseModel):
@@ -9,6 +9,7 @@ class User(BaseModel):
     name: str
     profile_url: str
     created_at: datetime
+    last_synced: Optional[datetime]
 
 
 class StravaTokens(BaseModel):
